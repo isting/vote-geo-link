@@ -22,6 +22,16 @@ npm run dev
 
 然后打开 `http://localhost:3000`。
 
+## 生产环境站点地址
+
+如果应用部署在反向代理后面，建议配置：
+
+```bash
+APP_BASE_URL=https://link.apax-voting.com
+```
+
+这样服务端生成 `/unavailable` 等站内跳转地址时，会固定使用正式域名，避免返回 `localhost:3000`。
+
 ## 本地地域测试
 
 跳转接口支持一个内部测试 Header：

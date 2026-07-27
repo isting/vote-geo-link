@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClientIp, getCountryFromRequest } from "@/lib/geo";
 import { getLinkBySlug, recordVisit } from "@/lib/db";
+import { createSiteUrl } from "@/lib/site-url";
 
 const FALLBACK_PATH = "/unavailable";
 
@@ -10,7 +11,10 @@ export async function GET(
 ) {
   const { slug } = await context.params;
   const link = await getLinkBySlug(slug);
-  const fallbackUrl = new URL(`${FALLBACK_PATH}?ref=${encodeURIComponent(slug)}`, request.url);
+  const fallbackUrl = createSiteUrl(
+    request,
+    `${FALLBACK_PATH}?ref=${encodeURIComponent(slug)}`,
+  );
 
   if (!link || link.status !== "active") {
     return NextResponse.redirect(fallbackUrl, 302);
