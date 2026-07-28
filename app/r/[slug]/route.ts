@@ -24,14 +24,15 @@ export async function GET(
     return NextResponse.redirect(fallbackUrl, 302);
   }
 
-  const countryCode = getCountryFromRequest(request);
+  const ip = getClientIp(request);
+  const countryCode = await getCountryFromRequest(request);
   const decision = link.allowedCountries.includes(countryCode) ? "allowed" : "fallback";
 
   await recordVisit({
     link,
     countryCode,
     decision,
-    ip: getClientIp(request),
+    ip,
     userAgent: request.headers.get("user-agent") ?? "",
     referer: request.headers.get("referer") ?? ""
   });

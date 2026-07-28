@@ -8,7 +8,7 @@
 - 为每条短链配置允许访问的国家或地区
 - 统一备用页：`/unavailable`
 - 服务端跳转路由：`/r/[slug]`
-- 通过 `CF-IPCountry`、`x-vercel-ip-country` 或本地测试 Header 识别国家
+- 通过访问者公网出口 IP 识别国家（开印度 VPN 即视为印度网络）
 - URL 安全校验，降低开放跳转滥用风险
 - 基础访问事件记录和统计面板
 - MVP 阶段使用文件存储：`data/db.json`
@@ -32,16 +32,14 @@ APP_BASE_URL=https://link.apax-voting.com
 
 这样服务端生成 `/unavailable` 等站内跳转地址时，会固定使用正式域名，避免返回 `localhost:3000`。
 
-## 本地地域测试
+## 地域判断说明
 
-跳转接口支持一个内部测试 Header：
+访问 `/r/[slug]` 时，服务端读取客户端公网 IP，调用 IP 地理位置接口得到国家码，再与短链允许的国家列表比对。
 
-```bash
-curl -I -H "x-geo-test-country: IN" http://localhost:3000/r/demo
-curl -I -H "x-geo-test-country: US" http://localhost:3000/r/demo
-```
+- 中国直连 → 识别为 `CN` → 未允许印度的短链会进备用页
+- 连接印度 VPN 后再访问 → 识别为 `IN` → 允许印度的短链可跳转
 
-生产环境建议把 Cloudflare 放在应用前面，并优先使用 `CF-IPCountry`。
+注意：在 `localhost` 上测试时，服务端看到的是本机私网地址，无法做真实地域判断。请用公网域名访问，并确保反向代理把真实客户端 IP 传到 `X-Forwarded-For` 或 `X-Real-IP`。
 
 ## 生产环境注意事项
 
